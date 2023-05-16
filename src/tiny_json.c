@@ -70,7 +70,7 @@ int json_parse(json_value *v, const char *json)
     json_context c;
     assert(json != NULL);
     c.json = json;
-    v->type = NULL;
+    v->type = JSON_NULL;
     json_parse_whitespace(&c);
     return json_parse_value(&c, v);
 }

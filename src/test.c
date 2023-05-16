@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "tiny_json.h"
 
 static int main_ret = 0;
@@ -22,6 +23,11 @@ static int test_count = 0;
 
 static void test_parse_null()
 {
+    json_value *v = (json_value *)malloc(sizeof(json_value));
+    v->type = JSON_FALSE;
+    EXPECT_EQUAL_INT(json_parse(v, "null"), PARSE_OK);
+    EXPECT_EQUAL_INT(get_type(v), JSON_NULL);
+    free(v);
 }
 
 static void test_parse()
