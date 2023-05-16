@@ -72,7 +72,13 @@ int json_parse(json_value *v, const char *json)
     c.json = json;
     v->type = JSON_NULL;
     json_parse_whitespace(&c);
-    return json_parse_value(&c, v);
+    int parse_res = json_parse_value(&c, v);
+    json_parse_whitespace(&c);
+    if (c.json != '\0')
+    {
+        return PARSE_ROOT_NOT_SINGULAR;
+    }
+    return parse_res;
 }
 
 /*
