@@ -47,6 +47,38 @@ static int json_parse_null(json_context *c, json_value *v)
 }
 
 /*
+    parse type true from json string
+*/
+static int json_parse_true(json_context *c, json_value *v)
+{
+    EXPECT(c, 't');
+    const char *j = c->json;
+    if (j[0] == 'r' && j[1] == 'u' && j[2] == 'e')
+    {
+        v->type = JSON_TRUE;
+        c->json += 3;
+        return PARSE_OK;
+    }
+    return PARSE_INVALID_VALUE;
+}
+
+/*
+    parse type false from json string
+*/
+static int json_parse_false(json_context *c, json_value *v)
+{
+    EXPECT(c, 'f');
+    const char *j = c->json;
+    if (j[0] == 'a' && j[1] == 'l' && j[2] == 's' && j[3] == 'e')
+    {
+        v->type = JSON_FALSE;
+        c->json += 4;
+        return PARSE_OK;
+    }
+    return PARSE_INVALID_VALUE;
+}
+
+/*
     parse json string accoring to its first character
 */
 static int json_parse_value(json_context *c, json_value *v)
@@ -55,6 +87,10 @@ static int json_parse_value(json_context *c, json_value *v)
     {
     case 'n':
         return json_parse_null(c, v);
+    case 't':
+        return json_parse_true(c, v);
+    case 'f':
+        return json_parse_false(c, v);
     case '\0':
         return PARSE_EXPECT_VALUE;
     default:
@@ -72,13 +108,16 @@ int json_parse(json_value *v, const char *json)
     c.json = json;
     v->type = JSON_NULL;
     json_parse_whitespace(&c);
-    int parse_res = json_parse_value(&c, v);
-    json_parse_whitespace(&c);
-    if (c.json != '\0')
+    int parse_ret = json_parse_value(&c, v);
+    if (parse_ret == PARSE_OK)
     {
-        return PARSE_ROOT_NOT_SINGULAR;
+        json_parse_whitespace(&c);
+        if (*c.json != '\0')
+        {
+            return PARSE_ROOT_NOT_SINGULAR;
+        }
     }
-    return parse_res;
+    return parse_ret;
 }
 
 /*

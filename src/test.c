@@ -25,13 +25,72 @@ static void test_parse_null()
 {
     json_value v;
     v.type = JSON_FALSE;
-    EXPECT_EQUAL_INT(json_parse(&v, "null"), PARSE_OK);
-    EXPECT_EQUAL_INT(get_type(&v), JSON_NULL);
+    EXPECT_EQUAL_INT(PARSE_OK, json_parse(&v, "null"));
+    EXPECT_EQUAL_INT(JSON_NULL, get_type(&v));
+}
+
+static void test_parse_true()
+{
+    json_value v;
+    v.type = JSON_NULL;
+    EXPECT_EQUAL_INT(PARSE_OK, json_parse(&v, "true"));
+    EXPECT_EQUAL_INT(JSON_TRUE, get_type(&v));
+}
+
+static void test_parse_false()
+{
+    json_value v;
+    v.type = JSON_NULL;
+    EXPECT_EQUAL_INT(PARSE_OK, json_parse(&v, "false"));
+    EXPECT_EQUAL_INT(JSON_FALSE, get_type(&v));
+}
+
+static void test_parse_expect_value()
+{
+    json_value v;
+
+    v.type = JSON_FALSE;
+    EXPECT_EQUAL_INT(PARSE_EXPECT_VALUE, json_parse(&v, ""));
+    EXPECT_EQUAL_INT(JSON_NULL, get_type(&v));
+
+    v.type = JSON_FALSE;
+    EXPECT_EQUAL_INT(PARSE_EXPECT_VALUE, json_parse(&v, " "));
+    EXPECT_EQUAL_INT(JSON_NULL, get_type(&v));
+
+    EXPECT_EQUAL_INT(PARSE_EXPECT_VALUE, json_parse(&v, "\t"));
+    EXPECT_EQUAL_INT(PARSE_EXPECT_VALUE, json_parse(&v, "\n"));
+    EXPECT_EQUAL_INT(PARSE_EXPECT_VALUE, json_parse(&v, "\r"));
+}
+
+static void test_parse_invalid_value()
+{
+    json_value v;
+
+    v.type = JSON_FALSE;
+    EXPECT_EQUAL_INT(PARSE_INVALID_VALUE, json_parse(&v, "nul"));
+    EXPECT_EQUAL_INT(JSON_NULL, get_type(&v));
+
+    v.type = JSON_FALSE;
+    EXPECT_EQUAL_INT(PARSE_INVALID_VALUE, json_parse(&v, "?"));
+}
+
+static void test_parse_root_not_singular()
+{
+    json_value v;
+
+    v.type = JSON_FALSE;
+    EXPECT_EQUAL_INT(PARSE_ROOT_NOT_SINGULAR, json_parse(&v, "null x"));
+    EXPECT_EQUAL_INT(JSON_NULL, get_type(&v));
 }
 
 static void test_parse()
 {
     test_parse_null();
+    test_parse_true();
+    test_parse_false();
+    test_parse_expect_value();
+    test_parse_invalid_value();
+    test_parse_root_not_singular();
 }
 
 int main()
