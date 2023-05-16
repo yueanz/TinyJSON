@@ -21,6 +21,15 @@ static int test_count = 0;
 
 #define EXPECT_EQUAL_INT(expect, actual) EXPECT_EQUAL_BASE((expect) == (actual), expect, actual, "%d")
 
+#define TEST_ERROR(error, json)                        \
+    do                                                 \
+    {                                                  \
+        json_value v;                                  \
+        v.type = JSON_FALSE;                           \
+        EXPECT_EQUAL_INT(error, json_parse(&v, json)); \
+        EXPECT_EQUAL_INT(JSON_NULL, get_type(&v));     \
+    } while (0)
+
 static void test_parse_null()
 {
     json_value v;
@@ -47,40 +56,22 @@ static void test_parse_false()
 
 static void test_parse_expect_value()
 {
-    json_value v;
-
-    v.type = JSON_FALSE;
-    EXPECT_EQUAL_INT(PARSE_EXPECT_VALUE, json_parse(&v, ""));
-    EXPECT_EQUAL_INT(JSON_NULL, get_type(&v));
-
-    v.type = JSON_FALSE;
-    EXPECT_EQUAL_INT(PARSE_EXPECT_VALUE, json_parse(&v, " "));
-    EXPECT_EQUAL_INT(JSON_NULL, get_type(&v));
-
-    EXPECT_EQUAL_INT(PARSE_EXPECT_VALUE, json_parse(&v, "\t"));
-    EXPECT_EQUAL_INT(PARSE_EXPECT_VALUE, json_parse(&v, "\n"));
-    EXPECT_EQUAL_INT(PARSE_EXPECT_VALUE, json_parse(&v, "\r"));
+    TEST_ERROR(PARSE_EXPECT_VALUE, "");
+    TEST_ERROR(PARSE_EXPECT_VALUE, " ");
+    TEST_ERROR(PARSE_EXPECT_VALUE, "\t");
+    TEST_ERROR(PARSE_EXPECT_VALUE, "\n");
+    TEST_ERROR(PARSE_EXPECT_VALUE, "\r");
 }
 
 static void test_parse_invalid_value()
 {
-    json_value v;
-
-    v.type = JSON_FALSE;
-    EXPECT_EQUAL_INT(PARSE_INVALID_VALUE, json_parse(&v, "nul"));
-    EXPECT_EQUAL_INT(JSON_NULL, get_type(&v));
-
-    v.type = JSON_FALSE;
-    EXPECT_EQUAL_INT(PARSE_INVALID_VALUE, json_parse(&v, "?"));
+    TEST_ERROR(PARSE_INVALID_VALUE, "nul");
+    TEST_ERROR(PARSE_INVALID_VALUE, "?");
 }
 
 static void test_parse_root_not_singular()
 {
-    json_value v;
-
-    v.type = JSON_FALSE;
-    EXPECT_EQUAL_INT(PARSE_ROOT_NOT_SINGULAR, json_parse(&v, "null x"));
-    EXPECT_EQUAL_INT(JSON_NULL, get_type(&v));
+    TEST_ERROR(PARSE_ROOT_NOT_SINGULAR, "null x");
 }
 
 static void test_parse()
