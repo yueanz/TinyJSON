@@ -1,4 +1,4 @@
-#ifdef LEPTJSON_H__
+#ifndef LEPTJSON_H__
 #define LEPTJSON_H__
 
 typedef enum
