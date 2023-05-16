@@ -5,11 +5,12 @@
 /*
     check first character of json string and move pointer to next character
 */
-#define EXPECT(c, ch)             \
-    do                            \
-    {                             \
-        assert(*c->json == (ch)); \
-        c->json++;                \
+#define EXPECT(c, ch)              \
+    do                             \
+    {                              \
+        assert(*c->json == (*ch)); \
+        c->json++;                 \
+        ch++;                      \
     } while (0)
 
 typedef struct
@@ -31,51 +32,24 @@ static void json_parse_whitespace(json_context *c)
 }
 
 /*
-    parse type null from json string
+    parse type literal (null, true, false) from json string
 */
-static int json_parse_null(json_context *c, json_value *v)
+static int json_parse_literal(json_context *c, json_value *v, const char *literal, json_type type)
 {
-    EXPECT(c, 'n');
+    EXPECT(c, literal);
+    size_t len = 0;
     const char *j = c->json;
-    if (j[0] == 'u' && j[1] == 'l' && j[2] == 'l')
+    while (*literal != '\0')
     {
-        v->type = JSON_NULL;
-        c->json += 3;
-        return PARSE_OK;
+        len++;
+        if (*j++ != *literal++)
+        {
+            return PARSE_INVALID_VALUE;
+        }
     }
-    return PARSE_INVALID_VALUE;
-}
-
-/*
-    parse type true from json string
-*/
-static int json_parse_true(json_context *c, json_value *v)
-{
-    EXPECT(c, 't');
-    const char *j = c->json;
-    if (j[0] == 'r' && j[1] == 'u' && j[2] == 'e')
-    {
-        v->type = JSON_TRUE;
-        c->json += 3;
-        return PARSE_OK;
-    }
-    return PARSE_INVALID_VALUE;
-}
-
-/*
-    parse type false from json string
-*/
-static int json_parse_false(json_context *c, json_value *v)
-{
-    EXPECT(c, 'f');
-    const char *j = c->json;
-    if (j[0] == 'a' && j[1] == 'l' && j[2] == 's' && j[3] == 'e')
-    {
-        v->type = JSON_FALSE;
-        c->json += 4;
-        return PARSE_OK;
-    }
-    return PARSE_INVALID_VALUE;
+    v->type = type;
+    c->json += len;
+    return PARSE_OK;
 }
 
 /*
@@ -86,11 +60,11 @@ static int json_parse_value(json_context *c, json_value *v)
     switch (*c->json)
     {
     case 'n':
-        return json_parse_null(c, v);
+        return json_parse_literal(c, v, "null", JSON_NULL);
     case 't':
-        return json_parse_true(c, v);
+        return json_parse_literal(c, v, "true", JSON_TRUE);
     case 'f':
-        return json_parse_false(c, v);
+        return json_parse_literal(c, v, "false", JSON_FALSE);
     case '\0':
         return PARSE_EXPECT_VALUE;
     default:
