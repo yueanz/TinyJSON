@@ -14,7 +14,7 @@ typedef enum
 
 typedef struct
 {
-    double n;
+    double num;
     json_type type;
 } json_value;
 

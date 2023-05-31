@@ -106,8 +106,8 @@ json_type get_type(const json_value *v)
 /*
     get json value if json is a number
 */
-double get_value(const json_value *v)
+double get_number(const json_value *v)
 {
     assert(v != NULL && v->type == JSON_NUMBER);
-    return v->n;
+    return v->num;
 }
