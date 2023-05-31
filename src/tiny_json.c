@@ -102,3 +102,12 @@ json_type get_type(const json_value *v)
     assert(v != NULL);
     return v->type;
 }
+
+/*
+    get json value if json is a number
+*/
+double get_value(const json_value *v)
+{
+    assert(v != NULL && v->type == JSON_NUMBER);
+    return v->n;
+}
