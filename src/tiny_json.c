@@ -52,6 +52,15 @@ static int json_parse_literal(json_context *c, json_value *v, const char *litera
     return PARSE_OK;
 }
 
+static int json_parse_number(json_context *c, json_value *v)
+{
+    char *end;
+    v->num = strtod(c->json, &end);
+    if (c->json == end){
+        
+    }
+}
+
 /*
     parse json string accoring to its first character
 */
